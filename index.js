@@ -123,6 +123,9 @@ app.use("/api/whatsapp",whatsappRoutes);
 const addressRoutes = require("./router/addressRoute");
 app.use("/api/address",addressRoutes);
 
+const storeRoutes = require("./router/storeRoute");
+app.use("/api/store", storeRoutes);
+
 const startServer = async () => {
   if (!mongoUri) {
     throw new Error("MONGO_URI is not configured.");

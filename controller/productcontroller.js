@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const Product = require("../models/product");
 const Category = require("../models/category");
+const Store = require("../models/Store");
+const StoreProduct = require("../models/StoreProduct");
 
 // =====================================================
 // CREATE SLUG
@@ -1072,6 +1074,45 @@ const getAllProducts =
         limitNumber;
 
       const filter = {};
+      let storePriceOverrides = new Map();
+
+      const storeSubdomain = String(
+        req.get("x-store-subdomain") || req.query.store || ""
+      ).trim().toLowerCase();
+
+      if (storeSubdomain) {
+        const store = await Store.findOne({
+          subdomain: storeSubdomain,
+          isActive: true,
+        }).select("_id");
+
+        if (!store) {
+          return res.status(200).json({
+            success: true,
+            count: 0,
+            total: 0,
+            page: pageNumber,
+            pages: 0,
+            products: [],
+          });
+        }
+
+        const selections = await StoreProduct.find({
+          store: store._id,
+          isActive: true,
+        }).select("product sellingPrice");
+
+        storePriceOverrides = new Map(
+          selections.map((selection) => [
+            String(selection.product),
+            selection.sellingPrice,
+          ])
+        );
+
+        filter._id = {
+          $in: selections.map((selection) => selection.product),
+        };
+      }
 
       if (req.query.includePending !== "true") {
         filter.isActive = true;
@@ -1325,7 +1366,15 @@ const getAllProducts =
       res.status(200).json({
         success: true,
 
-        products,
+        products: products.map((product) => {
+          const productData = product.toObject();
+          const override = storePriceOverrides.get(String(product._id));
+          if (override !== null && override !== undefined) {
+            productData.storePrice = override;
+            productData.price = override;
+          }
+          return productData;
+        }),
 
         pagination: {
           total,
@@ -1378,6 +1427,21 @@ const getSingleProduct =
         };
       }
 
+      const storeSubdomain = String(
+        req.get("x-store-subdomain") || req.query.store || ""
+      ).trim().toLowerCase();
+
+      if (storeSubdomain) {
+        const store = await Store.findOne({
+          subdomain: storeSubdomain,
+          isActive: true,
+        }).select("_id");
+        const selection = store
+          ? await StoreProduct.findOne({ store: store._id, product: query._id, isActive: true }).select("sellingPrice")
+          : null;
+        if (!selection) query._id = null;
+      }
+
       const product =
         await Product.findOne(
           {
@@ -1402,9 +1466,19 @@ const getSingleProduct =
         });
       }
 
+      const productData = product.toObject();
+      if (storeSubdomain) {
+        const store = await Store.findOne({ subdomain: storeSubdomain, isActive: true }).select("_id");
+        const selection = store ? await StoreProduct.findOne({ store: store._id, product: product._id, isActive: true }).select("sellingPrice") : null;
+        if (selection?.sellingPrice !== null && selection?.sellingPrice !== undefined) {
+          productData.storePrice = selection.sellingPrice;
+          productData.price = selection.sellingPrice;
+        }
+      }
+
       res.status(200).json({
         success: true,
-        product,
+        product: productData,
       });
     } catch (error) {
       console.error(
