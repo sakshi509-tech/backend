@@ -1,5 +1,6 @@
 const Setting = require("../models/SiteSettings");
 const Footer = require("../models/Footer");
+const { normalizeUrlLikeName } = require("../utils/urlFormat");
 const fs = require("fs");
 const path = require("path");
 
@@ -41,11 +42,12 @@ const getSettings = async (req, res) => {
 const updateSiteName = async (req, res) => {
   try {
     const { siteName } = req.body;
+    const normalizedName = normalizeUrlLikeName(siteName);
 
-    if (!siteName || !siteName.trim()) {
+    if (!normalizedName) {
       return res.status(400).json({
         success: false,
-        message: "Site name is required",
+        message: "Website name must be a valid URL-like name",
       });
     }
 
@@ -55,7 +57,7 @@ const updateSiteName = async (req, res) => {
       settings = new Setting();
     }
 
-    settings.siteName = siteName.trim();
+    settings.siteName = normalizedName;
 
     await settings.save();
 

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Store = require("../models/Store");
 const StoreProduct = require("../models/StoreProduct");
+const { normalizeUrlLikeName } = require("../utils/urlFormat");
 
 const cleanSubdomain = (value) => String(value || "").trim().toLowerCase();
 const storeUrlFor = (slug) => `https://${slug}.${process.env.STORE_ROOT_DOMAIN || "frontend-q.com"}`;
@@ -33,9 +34,10 @@ exports.getMyStore = async (req, res) => {
 exports.createOrUpdateStore = async (req, res) => {
   try {
     const { username, storeName, storeSlug, subdomain, logo = "", banner = "", themeKey = "modern", theme = {} } = req.body;
+    const normalizedStoreName = normalizeUrlLikeName(storeName);
     const normalizedSlug = cleanSubdomain(storeSlug || subdomain || username || req.user.name);
     const normalizedUsername = cleanSubdomain(username || req.user.name || normalizedSlug);
-    if (!storeName || !normalizedSlug || !normalizedUsername) {
+    if (!normalizedStoreName || !normalizedSlug || !normalizedUsername) {
       return res.status(400).json({ success: false, message: "Username, store name, and store slug are required" });
     }
     if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(normalizedSlug)) {
@@ -48,7 +50,7 @@ exports.createOrUpdateStore = async (req, res) => {
       { owner: req.user.id },
       {
         owner: req.user.id,
-        storeName: String(storeName).trim(),
+        storeName: normalizedStoreName,
         username: normalizedUsername,
         subdomain: normalizedSlug,
         storeSlug: normalizedSlug,
