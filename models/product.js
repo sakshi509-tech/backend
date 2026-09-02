@@ -45,11 +45,13 @@ const productSchema = new mongoose.Schema(
       default: null,
       min: 0,
     },
-    supplier: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "Supplier",
-  default: null,
-},
+
+    // Dropshipper Reference (if product belongs to a dropshipper)
+    dropshipper: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Dropshipper",
+      default: null,
+    },
 
     stock: {
       type: Number,
