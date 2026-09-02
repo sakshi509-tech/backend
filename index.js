@@ -14,6 +14,7 @@ const corsOptions = {
     const isAllowed = /^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
       || /^(https?:\/\/)[a-z0-9-]+\.localhost(:\d+)?$/.test(origin)
       || /^https:\/\/[a-z0-9-]+\.frontend-q\.com$/.test(origin)
+      || /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)
       || origin === "https://frontend-q.com"
       || origin === "https://www.frontend-q.com";
     return callback(isAllowed ? null : new Error("Origin not allowed"), isAllowed);
