@@ -1,6 +1,5 @@
 const Wishlist = require("../models/wishlist");
 const Product = require("../models/product");
-const { syncStoreSelections } = require("../services/storeSelectionService");
 
 // ======================================
 // GET WISHLIST
@@ -91,7 +90,6 @@ const addToWishlist = async (req, res) => {
     wishlist.products.push(productId);
 
     await wishlist.save();
-    await syncStoreSelections(userId, req.user.name);
 
     await wishlist.populate({
       path: "products",
@@ -141,7 +139,6 @@ const removeFromWishlist = async (req, res) => {
       );
 
     await wishlist.save();
-    await syncStoreSelections(userId, req.user.name);
 
     await wishlist.populate({
       path: "products",
@@ -186,7 +183,6 @@ const clearWishlist = async (req, res) => {
     wishlist.products = [];
 
     await wishlist.save();
-    await syncStoreSelections(userId, req.user.name);
 
     res.json({
       success: true,

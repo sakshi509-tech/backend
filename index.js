@@ -9,9 +9,17 @@ const app = express();
 app.set("trust proxy", 1);
 
 const corsOptions = {
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = /^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+      || /^(https?:\/\/)[a-z0-9-]+\.localhost(:\d+)?$/.test(origin)
+      || /^https:\/\/[a-z0-9-]+\.frontend-q\.com$/.test(origin)
+      || origin === "https://frontend-q.com"
+      || origin === "https://www.frontend-q.com";
+    return callback(isAllowed ? null : new Error("Origin not allowed"), isAllowed);
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-store-subdomain"],
   optionsSuccessStatus: 204,
 };
 

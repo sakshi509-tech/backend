@@ -1082,7 +1082,7 @@ const getAllProducts =
 
       if (storeSubdomain) {
         const store = await Store.findOne({
-          subdomain: storeSubdomain,
+          $or: [{ storeSlug: storeSubdomain }, { subdomain: storeSubdomain }],
           isActive: true,
         }).select("_id");
 
@@ -1457,7 +1457,7 @@ const getSingleProduct =
 
       const productData = product.toObject();
       if (storeSubdomain) {
-        const store = await Store.findOne({ subdomain: storeSubdomain, isActive: true }).select("_id");
+        const store = await Store.findOne({ $or: [{ storeSlug: storeSubdomain }, { subdomain: storeSubdomain }], isActive: true }).select("_id");
         const selection = store ? await StoreProduct.findOne({ store: store._id, product: product._id, isActive: true }).select("sellingPrice") : null;
         if (!selection) {
           return res.status(404).json({ success: false, message: "Product not found in this store" });
