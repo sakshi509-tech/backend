@@ -53,6 +53,13 @@ const productSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Supplier Reference for supplier-based products
+    supplier: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
+      default: null,
+    },
+
     stock: {
       type: Number,
       default: 0,
