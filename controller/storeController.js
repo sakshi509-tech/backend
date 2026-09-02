@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Store = require("../models/Store");
 const StoreProduct = require("../models/StoreProduct");
-const Product = require("../models/product");
 
 const cleanSubdomain = (value) => String(value || "").trim().toLowerCase();
 
@@ -79,7 +78,7 @@ exports.getStoreBySubdomain = async (req, res) => {
 exports.getMyStoreProducts = async (req, res) => {
   try {
     const store = await Store.findOne({ owner: req.user.id });
-    if (!store) return res.status(404).json({ success: false, message: "Create your store first" });
+    if (!store) return res.json({ success: true, products: [] });
     const products = await StoreProduct.find({ store: store._id }).populate("product").sort({ createdAt: -1 });
     return res.json({ success: true, products });
   } catch (error) {
@@ -87,16 +86,15 @@ exports.getMyStoreProducts = async (req, res) => {
   }
 };
 
-exports.addProduct = async (req, res) => {
+exports.updateProductPrice = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.productId)) return res.status(400).json({ success: false, message: "Invalid product ID" });
     const store = await Store.findOne({ owner: req.user.id });
-    const product = await Product.findOne({ _id: req.params.productId, isActive: true });
-    if (!store) return res.status(404).json({ success: false, message: "Create your store first" });
-    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    if (!store) return res.status(404).json({ success: false, message: "Store not found" });
     const sellingPrice = req.body.sellingPrice === "" || req.body.sellingPrice === undefined ? null : Number(req.body.sellingPrice);
     if (sellingPrice !== null && (!Number.isFinite(sellingPrice) || sellingPrice < 0)) return res.status(400).json({ success: false, message: "Selling price must be a positive number" });
-    const selection = await StoreProduct.findOneAndUpdate({ store: store._id, product: product._id }, { store: store._id, product: product._id, sellingPrice, isActive: true }, { new: true, upsert: true, runValidators: true }).populate("product");
+    const selection = await StoreProduct.findOneAndUpdate({ store: store._id, product: req.params.productId }, { sellingPrice }, { new: true, runValidators: true }).populate("product");
+    if (!selection) return res.status(404).json({ success: false, message: "Product is not selected in your store" });
     return res.status(200).json({ success: true, selection });
   } catch (error) {
     console.error("ADD STORE PRODUCT ERROR:", error);
@@ -104,13 +102,3 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-exports.removeProduct = async (req, res) => {
-  try {
-    const store = await Store.findOne({ owner: req.user.id });
-    if (!store) return res.status(404).json({ success: false, message: "Store not found" });
-    await StoreProduct.findOneAndDelete({ store: store._id, product: req.params.productId });
-    return res.json({ success: true, message: "Product removed from store" });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Failed to remove product" });
-  }
-};

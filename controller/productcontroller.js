@@ -1431,17 +1431,6 @@ const getSingleProduct =
         req.get("x-store-subdomain") || req.query.store || ""
       ).trim().toLowerCase();
 
-      if (storeSubdomain) {
-        const store = await Store.findOne({
-          subdomain: storeSubdomain,
-          isActive: true,
-        }).select("_id");
-        const selection = store
-          ? await StoreProduct.findOne({ store: store._id, product: query._id, isActive: true }).select("sellingPrice")
-          : null;
-        if (!selection) query._id = null;
-      }
-
       const product =
         await Product.findOne(
           {
@@ -1470,6 +1459,9 @@ const getSingleProduct =
       if (storeSubdomain) {
         const store = await Store.findOne({ subdomain: storeSubdomain, isActive: true }).select("_id");
         const selection = store ? await StoreProduct.findOne({ store: store._id, product: product._id, isActive: true }).select("sellingPrice") : null;
+        if (!selection) {
+          return res.status(404).json({ success: false, message: "Product not found in this store" });
+        }
         if (selection?.sellingPrice !== null && selection?.sellingPrice !== undefined) {
           productData.storePrice = selection.sellingPrice;
           productData.price = selection.sellingPrice;

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Cart = require("../models/cart");
+const { syncStoreSelections } = require("../services/storeSelectionService");
 
 // =====================================================
 // GET CART
@@ -183,6 +184,7 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
+    await syncStoreSelections(userId, req.user.name);
 
     await cart.populate({
       path: "items.product",
@@ -287,6 +289,7 @@ const updateCart = async (req, res) => {
     item.quantity = quantity;
 
     await cart.save();
+    await syncStoreSelections(userId, req.user.name);
 
     await cart.populate({
       path: "items.product",
@@ -373,6 +376,7 @@ const removeFromCart = async (req, res) => {
     );
 
     await cart.save();
+    await syncStoreSelections(userId, req.user.name);
 
     await cart.populate({
       path: "items.product",

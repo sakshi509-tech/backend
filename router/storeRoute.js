@@ -8,7 +8,6 @@ router.get("/subdomain/:subdomain", storeController.getStoreBySubdomain);
 router.get("/me", authMiddleware, storeController.getMyStore);
 router.post("/me", authMiddleware, storeController.createOrUpdateStore);
 router.get("/me/products", authMiddleware, storeController.getMyStoreProducts);
-router.post("/me/products/:productId", authMiddleware, storeController.addProduct);
-router.delete("/me/products/:productId", authMiddleware, storeController.removeProduct);
+router.patch("/me/products/:productId", authMiddleware, storeController.updateProductPrice);
 
 module.exports = router;
