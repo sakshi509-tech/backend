@@ -13,7 +13,6 @@ const {
   updateProduct,
   deleteProduct,
   toggleProductStatus,
-  getDropshippingProducts,
 } = require("../controller/productcontroller");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -56,15 +55,6 @@ router.post(
 router.get(
   "/all",
   getAllProducts
-);
-
-// =====================================================
-// GET DROPSHIPPING PRODUCTS
-// =====================================================
-
-router.get(
-  "/dropshipping",
-  getDropshippingProducts
 );
 
 // =====================================================

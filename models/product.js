@@ -46,20 +46,6 @@ const productSchema = new mongoose.Schema(
       min: 0,
     },
 
-    // Dropshipper Reference (if product belongs to a dropshipper)
-    dropshipper: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Dropshipper",
-      default: null,
-    },
-
-    // Supplier Reference for supplier-based products
-    supplier: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Supplier",
-      default: null,
-    },
-
     stock: {
       type: Number,
       default: 0,
@@ -116,39 +102,6 @@ const productSchema = new mongoose.Schema(
       default: false,
     },
 
-    // ===============================
-    // DROPSHIPPING
-    // ===============================
-
-    isDropshipping: {
-      type: Boolean,
-      default: false,
-    },
-
-    supplierName: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-
-    supplierProductId: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-
-    supplierUrl: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-
-    supplierPrice: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
     tags: {
       type: [String],
       default: [],
@@ -171,10 +124,6 @@ productSchema.index({
 
 productSchema.index({
   category: 1,
-});
-
-productSchema.index({
-  isDropshipping: 1,
 });
 
 productSchema.index({

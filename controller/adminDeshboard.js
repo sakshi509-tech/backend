@@ -67,7 +67,6 @@ const getAdminDashboard = async (req, res) => {
 
     let activeProducts = 0;
     let featuredProducts = 0;
-    let dropshippingProducts = 0;
     let newArrivalProducts = 0;
     let bestSellerProducts = 0;
 
@@ -91,18 +90,6 @@ const getAdminDashboard = async (req, res) => {
       });
     } catch (error) {
       featuredProducts = 0;
-    }
-
-    try {
-      dropshippingProducts =
-        await Product.countDocuments({
-          $or: [
-            { dropshipping: true },
-            { isDropshipping: true },
-          ],
-        });
-    } catch (error) {
-      dropshippingProducts = 0;
     }
 
     try {
@@ -315,8 +302,6 @@ const getAdminDashboard = async (req, res) => {
         products: {
           total: totalProducts,
           active: activeProducts,
-          dropshipping:
-            dropshippingProducts,
           featured: featuredProducts,
           newArrival:
             newArrivalProducts,

@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const Product = require("../models/product");
 const Category = require("../models/category");
-const Supplier = require("../models/Supplier");
 
 // =====================================================
 // CREATE SLUG
@@ -535,10 +534,6 @@ const createProduct = async (
         .populate(
           "category",
           "name slug image description"
-        )
-        .populate(
-          "supplier",
-          "name companyName phone email address website isActive"
         );
 
     // =================================================
@@ -873,10 +868,6 @@ const createMultipleProducts =
           .populate(
             "category",
             "name slug image"
-          )
-          .populate(
-            "supplier",
-            "name companyName phone email website isActive"
           );
 
       res.status(201).json({
@@ -1320,10 +1311,6 @@ const getAllProducts =
             "category",
             "name slug image"
           )
-          .populate(
-            "supplier",
-            "name companyName phone email website isActive"
-          )
           .sort(sortOption)
           .skip(skip)
           .limit(
@@ -1405,10 +1392,6 @@ const getSingleProduct =
           .populate(
             "category",
             "name slug image description"
-          )
-          .populate(
-            "supplier",
-            "name companyName phone email address website isActive"
           );
 
       if (!product) {
@@ -2045,10 +2028,6 @@ const updateProduct =
           .populate(
             "category",
             "name slug image description"
-          )
-          .populate(
-            "supplier",
-            "name companyName phone email address website isActive"
           );
 
       res.status(200).json({

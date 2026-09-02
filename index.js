@@ -4,7 +4,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
-const subdomainMiddleware = require("./middleware/subdomainMiddleware");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -19,8 +18,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 app.use(express.json());
-app.use(subdomainMiddleware);  // Add subdomain detection
-
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -125,10 +122,6 @@ app.use("/api/whatsapp",whatsappRoutes);
 //address
 const addressRoutes = require("./router/addressRoute");
 app.use("/api/address",addressRoutes);
-
-//dropshipper
-const dropshipperRoutes = require("./router/dropshipperRoute");
-app.use("/api/dropshipper", dropshipperRoutes);
 
 const startServer = async () => {
   if (!mongoUri) {
